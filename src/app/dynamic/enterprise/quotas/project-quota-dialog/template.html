@@ -20,7 +20,7 @@
 END OF TERMS AND CONDITIONS
 -->
 
-<km-dialog-title>Add Project Quota</km-dialog-title>
+<km-dialog-title>{{ editQuota ? 'Update' : 'Add'}} Project Quota</km-dialog-title>
 <mat-dialog-content>
   <form [formGroup]="form"
         fxLayout="column"
@@ -76,12 +76,13 @@ END OF TERMS AND CONDITIONS
           <mat-option *ngFor="let project of projects"
                       [value]="project.id"> {{project.name}} </mat-option>
           <mat-select-trigger fxLayout="row">
-            <div fxLayoutAlign="start">{{selectedProject?.name}}</div>
+            <div fxLayoutAlign="start">{{selectedProject?.name || editQuota?.name}}</div>
 
             <div fxLayoutAlign="end"
                  class="km-select-trigger-button-wrapper">
               <button matSuffix
                       mat-icon-button
+                      [disabled]="!!editQuota"
                       (click)="resetSubjectNameControl()">
                 <i class="km-icon-mask km-icon-remove"></i>
               </button>

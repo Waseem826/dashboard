@@ -63,7 +63,7 @@ END OF TERMS AND CONDITIONS
             class="km-header-cell p-40"
             mat-sort-header>Project</th>
         <td mat-cell
-            *matCellDef="let element">{{ element?.subjectHumanReadableName || element?.name }}</td>
+            *matCellDef="let element">{{element?.subjectHumanReadableName || element?.name}}</td>
       </ng-container>
 
       <ng-container [matColumnDef]="Column.Memory">
@@ -88,18 +88,31 @@ END OF TERMS AND CONDITIONS
         <th mat-header-cell
             *matHeaderCellDef
             class="km-header-cell p-5"
-            mat-sort-header>Disk</th>
+            mat-sort-header>DISK</th>
         <td mat-cell
             *matCellDef="let element">{{element?.quota?.storage}}</td>
       </ng-container>
 
-      <ng-container [matColumnDef]="Column.Spacer">
+      <ng-container [matColumnDef]="Column.Actions">
         <th mat-header-cell
             *matHeaderCellDef
-            class="km-header-cell p-10"
-            mat-sort-header></th>
+            class="km-header-cell p-5"></th>
         <td mat-cell
-            *matCellDef="let element"></td>
+            *matCellDef="let element">
+          <div class="km-table-actions"
+               fxLayoutAlign="end">
+            <button mat-icon-button
+                    (click)="edit(element)">
+              <i class="km-icon-mask km-icon-edit"></i>
+            </button>
+
+            <button mat-icon-button
+                    (click)="delete(element)"
+                    [attr.id]="'km-quota-delete-btn-' + element.name">
+              <i class="km-icon-mask km-icon-delete"></i>
+            </button>
+          </div>
+        </td>
       </ng-container>
 
       <tr mat-header-row
@@ -111,19 +124,19 @@ END OF TERMS AND CONDITIONS
     </table>
 
     <ng-container *ngIf="isLoading">
-      <div class="km-row"
+      <div id="quotas-loading-spinner"
+           class="km-row"
            fxLayoutAlign="center center">
-        <mat-spinner id="quotas-loading-spinner"
-                     color="accent"
+        <mat-spinner color="accent"
                      class="km-spinner"
                      [diameter]="25"></mat-spinner>
       </div>
     </ng-container>
 
     <ng-container *ngIf="!isLoading && !this.quotas.length">
-      <div id="quotas-not-found"
+      <div id="quotes-not-found"
            class="km-row"
-           fxLayoutAlign="center center">No quotas found</div>
+           fxLayoutAlign="center center">No Quotas Found</div>
     </ng-container>
 
     <div id="quotas-paginator"
