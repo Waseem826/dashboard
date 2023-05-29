@@ -40,6 +40,7 @@ export class KubeOneCloudSpec {
   digitalOcean?: KubeOneDigitalOceanCloudSpec;
   hetzner?: KubeOneHetznerCloudSpec;
   openstack?: KubeOneOpenstackCloudSpec;
+  vmwareclouddirector?: KubeOneVMwareCloudDirectorCloudSpec;
 }
 
 export class KubeOneAWSCloudSpec {
@@ -73,4 +74,12 @@ export class KubeOneOpenstackCloudSpec {
   project: string;
   projectID: string;
   region: string;
+}
+
+export class KubeOneVMwareCloudDirectorCloudSpec {
+  username: string;
+  password: string;
+  organization: string;
+  url: string;
+  vdc: string;
 }

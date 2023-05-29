@@ -20,6 +20,7 @@ import {KubeOneAWSCredentialsBasicComponent} from '@app/kubeone-wizard/steps/cre
 import {KubeOneAzureCredentialsBasicComponent} from '@app/kubeone-wizard/steps/credentials/provider/basic/azure/component';
 import {KubeOneCredentialsBasicComponent} from '@app/kubeone-wizard/steps/credentials/provider/basic/component';
 import {KubeOneGCPCredentialsBasicComponent} from '@app/kubeone-wizard/steps/credentials/provider/basic/gcp/component';
+import {KubeOneVMwareCloudDirectorCredentialsBasicComponent} from '@app/kubeone-wizard/steps/credentials/provider/basic/vmware-cloud-director/component';
 import {KubeOneProviderStepComponent} from '@app/kubeone-wizard/steps/provider/component';
 import {KubeOneSummaryStepComponent} from '@app/kubeone-wizard/steps/summary/component';
 import {KubeOneWizardService} from '@core/services/kubeone-wizard/wizard';
@@ -42,6 +43,7 @@ const components = [
   KubeOneDigitaloceanCredentialsBasicComponent,
   KubeOneHetznerCredentialsBasicComponent,
   KubeOneOpenstackCredentialsBasicComponent,
+  KubeOneVMwareCloudDirectorCredentialsBasicComponent,
   KubeOneClusterStepComponent,
   KubeOneSummaryStepComponent,
   KubeOnePresetsComponent,

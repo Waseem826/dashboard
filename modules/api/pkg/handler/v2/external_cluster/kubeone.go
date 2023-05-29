@@ -368,6 +368,26 @@ func setOpenStackCredentials(preset *kubermaticv1.Preset, kubeOneCloudSpec apiv2
 	return &kubeOneCloudSpec, nil
 }
 
+func setVMwareCloudDirectorCredentials(preset *kubermaticv1.Preset, kubeOneCloudSpec apiv2.KubeOneCloudSpec) (*apiv2.KubeOneCloudSpec, error) {
+	if preset.Spec.VMwareCloudDirector == nil {
+		return nil, emptyCredentialError(preset.Name, "VMwareCloudDirector")
+	}
+
+	credentials := preset.Spec.VMwareCloudDirector
+
+	if kubeOneCloudSpec.VMwareCloudDirector == nil {
+		kubeOneCloudSpec.VMwareCloudDirector = &apiv2.KubeOneVMwareCloudDirectorCloudSpec{}
+	}
+
+	kubeOneCloudSpec.VMwareCloudDirector.Username = credentials.Username
+	kubeOneCloudSpec.VMwareCloudDirector.Password = credentials.Password
+	kubeOneCloudSpec.VMwareCloudDirector.Organization = credentials.Organization
+	kubeOneCloudSpec.VMwareCloudDirector.URL = credentials.URL
+	kubeOneCloudSpec.VMwareCloudDirector.VDC = credentials.VDC
+
+	return &kubeOneCloudSpec, nil
+}
+
 func getKubeOneProviderName(kubeOneCluster *kubeonev1beta2.KubeOneCluster, cluster kubermaticv1.ExternalCluster) (string, error) {
 	switch {
 	case kubeOneCluster.CloudProvider.AWS != nil:
