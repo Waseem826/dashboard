@@ -75,7 +75,7 @@
     "@fontsource/inconsolata": "4.5.10",
     "@fontsource/roboto": "5.0.12",
     "@fontsource/roboto-mono": "5.0.17",
-    "@fontsource/ubuntu": "4.5.11",
+    "@fontsource/ubuntu": "5.0.12",
     "@swimlane/ngx-charts": "20.5.0",
     "buffer": "6.0.3",
     "core-js": "3.36.1",
