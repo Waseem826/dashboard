@@ -15,6 +15,12 @@ limitations under the License.
 -->
 
 <div class="editor">
+  <div *ngIf="isLoadingEditor"
+       class="editor-loading-spinner">
+    <mat-spinner [diameter]="25"
+                 class="km-spinner"
+                 color="primary"></mat-spinner>
+  </div>
   <div class="header"
        *ngIf="header"
        [ngClass]="getHeaderClasses()">{{header}}</div>

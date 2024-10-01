@@ -23,6 +23,17 @@ $content-top-margin: 7px;
   position: relative;
   width: 100%;
 
+  .editor-loading-spinner {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
   .monaco-editor {
     background-color: transparent;
     border-radius: variables.$border-radius;

@@ -12,7 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewEncapsulation,
+} from '@angular/core';
 import {ThemeInformerService} from '@core/services/theme-informer';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
@@ -41,6 +50,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   @Input() model: string;
   @Output() modelChange = new EventEmitter<string>();
   isFocused = false;
+  isLoadingEditor = true;
 
   private readonly _unsubscribe = new Subject<void>();
 
@@ -59,7 +69,10 @@ export class EditorComponent implements OnInit, OnDestroy {
     wordWrap: 'on',
   };
 
-  constructor(private readonly _themeInformerService: ThemeInformerService) {}
+  constructor(
+    private readonly _cdr: ChangeDetectorRef,
+    private readonly _themeInformerService: ThemeInformerService
+  ) {}
 
   ngOnInit(): void {
     this.options = {
@@ -82,8 +95,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   onInit(editor: any): void {
+    this.isLoadingEditor = false;
     editor.onDidFocusEditorText(() => (this.isFocused = true));
     editor.onDidBlurEditorText(() => (this.isFocused = false));
+    this._cdr.detectChanges();
   }
 
   onChange(): void {
