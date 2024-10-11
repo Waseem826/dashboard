@@ -388,6 +388,7 @@ export class ClusterStepComponent extends StepBase implements OnInit, ControlVal
 
     merge(this.control(Controls.IPFamily).valueChanges, this.control(Controls.NodePortsAllowedIPRanges).valueChanges)
       .pipe(takeUntil(this._unsubscribe))
+      .pipe(filter(_ => this.isAllowedIPRangeSupported()))
       .subscribe(_ => {
         const nodePortsAllowedIPRanges = this.controlValue(Controls.NodePortsAllowedIPRanges)?.tags;
         this._getExtraCloudSpecOptions().nodePortsAllowedIPRanges = {

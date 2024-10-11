@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {ClusterService} from '@core/services/cluster';
 import {ProviderSettingsPatch} from '@shared/entity/cluster';
 import {Subject} from 'rxjs';
@@ -21,6 +21,8 @@ import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
 enum Control {
   Kubeconfig = 'kubeconfig',
+  Subnet = 'subnet',
+  VpcID = 'vpcID',
 }
 
 @Component({
@@ -32,10 +34,6 @@ export class KubevirtProviderSettingsComponent implements OnInit, OnDestroy {
   readonly Control = Control;
   form: FormGroup;
 
-  get kubeconfig(): AbstractControl {
-    return this.form.controls.kubeconfig;
-  }
-
   constructor(
     private readonly _clusterService: ClusterService,
     private readonly _builder: FormBuilder
@@ -44,11 +42,12 @@ export class KubevirtProviderSettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.form = this._builder.group({
       [Control.Kubeconfig]: this._builder.control(''),
+      [Control.Subnet]: this._builder.control(''),
+      [Control.VpcID]: this._builder.control(''),
     });
 
-    this.form
-      .get(Control.Kubeconfig)
-      .valueChanges.pipe(distinctUntilChanged())
+    this.form.valueChanges
+      .pipe(distinctUntilChanged())
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(_ => this._clusterService.changeProviderSettingsPatch(this._getProviderSettingsPatch()));
   }
@@ -63,6 +62,8 @@ export class KubevirtProviderSettingsComponent implements OnInit, OnDestroy {
       cloudSpecPatch: {
         kubevirt: {
           kubeconfig: this.form.get(Control.Kubeconfig).value,
+          subnet: this.form.get(Control.Subnet).value,
+          vpcID: this.form.get(Control.VpcID).value,
         },
       },
       isValid: this.form.valid,

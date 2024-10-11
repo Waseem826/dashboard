@@ -22,6 +22,8 @@ import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
 export enum Controls {
   Kubeconfig = 'kubeconfig',
+  Subnet = 'subnet',
+  VpcID = 'vpcID',
 }
 
 @Component({
@@ -53,11 +55,12 @@ export class KubevirtSettingsComponent extends BaseFormValidator implements OnIn
   ngOnInit(): void {
     this.form = this._builder.group({
       [Controls.Kubeconfig]: this._builder.control('', Validators.required),
+      [Controls.Subnet]: this._builder.control(''),
+      [Controls.VpcID]: this._builder.control(''),
     });
 
-    this.form
-      .get(Controls.Kubeconfig)
-      .valueChanges.pipe(distinctUntilChanged())
+    this.form.valueChanges
+      .pipe(distinctUntilChanged())
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(_ => this._update());
 
@@ -75,6 +78,8 @@ export class KubevirtSettingsComponent extends BaseFormValidator implements OnIn
   private _update(): void {
     this._presetDialogService.preset.spec.kubevirt = {
       kubeconfig: this.form.get(Controls.Kubeconfig).value,
+      subnet: this.form.get(Controls.Subnet).value,
+      vpcID: this.form.get(Controls.VpcID).value,
     } as KubevirtPresetSpec;
   }
 }

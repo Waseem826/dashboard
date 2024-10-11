@@ -58,26 +58,28 @@ export class KubeVirtProviderBasicComponent extends BaseFormValidator implements
       [Controls.Kubeconfig]: this._builder.control('', Validators.required),
     });
 
+    this._presets.presetChanges.pipe(takeUntil(this._unsubscribe)).subscribe(preset => {
+      Object.values(Controls).forEach(control => {
+        this._enable(!preset, control);
+      });
+    });
+
     this.form.valueChanges
       .pipe(filter(_ => this._clusterSpecService.provider === NodeProvider.KUBEVIRT))
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(_ =>
-        this._presets.enablePresets(Object.values(Controls).every(control => !this.form.get(control).value))
+        this._presets.enablePresets(KubeVirtCloudSpec.isEmpty(this._clusterSpecService.cluster.spec.cloud.kubevirt))
       );
 
-    this._presets.presetChanges
+    merge(this._clusterSpecService.providerChanges, this._clusterSpecService.datacenterChanges)
       .pipe(takeUntil(this._unsubscribe))
-      .subscribe(preset => Object.values(Controls).forEach(control => this._enable(!preset, control)));
+      .subscribe(_ => this.form.reset());
 
     this.form
       .get(Controls.Kubeconfig)
       .valueChanges.pipe(distinctUntilChanged())
       .pipe(takeUntil(this._unsubscribe))
       .subscribe(_ => (this._clusterSpecService.cluster = this._getClusterEntity()));
-
-    merge(this._clusterSpecService.providerChanges, this._clusterSpecService.datacenterChanges)
-      .pipe(takeUntil(this._unsubscribe))
-      .subscribe(_ => this.form.reset());
   }
 
   ngOnDestroy(): void {

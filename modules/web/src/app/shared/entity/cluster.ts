@@ -214,6 +214,12 @@ export class HetznerCloudSpec {
 export class KubeVirtCloudSpec {
   kubeconfig: string;
   preAllocatedDataVolumes: KubeVirtPreAllocatedDataVolume[];
+  subnet: string;
+  vpcID: string;
+
+  static isEmpty(spec: KubeVirtCloudSpec): boolean {
+    return Object.keys(spec).every(key => !spec[key]);
+  }
 }
 
 export class KubeVirtPreAllocatedDataVolume {
@@ -651,6 +657,8 @@ export class VSphereInfraManagementUserPatch {
 
 export class KubevirtCloudSpecPatch {
   kubeconfig?: string;
+  subnet?: string;
+  vpcID?: string;
 }
 
 export class AlibabaCloudSpecPatch {

@@ -117,3 +117,18 @@ export enum KubeVirtTopologyWhenUnsatisfiable {
   ScheduleAnyway = 'ScheduleAnyway',
   DoNotSchedule = 'DoNotSchedule',
 }
+
+export class KubeVirtVPC {
+  vpcId: string;
+  name: string;
+  isDefault: boolean;
+  state: string;
+
+  get displayName(): string {
+    return this.name !== '' ? `${this.name} (${this.vpcId})` : this.vpcId;
+  }
+}
+
+export class KubeVirtSubnets {
+  subnets: string[];
+}

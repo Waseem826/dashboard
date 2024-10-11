@@ -16,6 +16,7 @@ import {NgModule} from '@angular/core';
 import {ApplicationsStepComponent} from '@app/wizard/step/applications/component';
 import {CiliumApplicationValuesDialogComponent} from '@app/wizard/step/cluster/cilium-application-values-dialog/component';
 import {BaremetalProviderBasicComponent} from '@app/wizard/step/provider-settings/provider/basic/baremetal/component';
+import {KubeVirtProviderExtendedComponent} from '@app/wizard/step/provider-settings/provider/extended/kubevirt/component';
 import {OpenstackProviderExtendedCredentialsComponent} from '@app/wizard/step/provider-settings/provider/extended/openstack/default/component';
 import {OpenstackCredentialsTypeService} from '@app/wizard/step/provider-settings/provider/extended/openstack/service';
 import {WizardService} from '@core/services/wizard/wizard';
@@ -72,6 +73,7 @@ const components = [
   HetznerProviderBasicComponent,
   HetznerProviderExtendedComponent,
   KubeVirtProviderBasicComponent,
+  KubeVirtProviderExtendedComponent,
   OpenstackProviderBasicComponent,
   OpenstackProviderExtendedComponent,
   OpenstackProviderExtendedCredentialsComponent,

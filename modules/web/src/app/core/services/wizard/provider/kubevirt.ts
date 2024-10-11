@@ -18,9 +18,12 @@ import {
   KubeVirtOSImageList,
   KubeVirtPreferenceList,
   KubeVirtStorageClass,
+  KubeVirtSubnets,
+  KubeVirtVPC,
 } from '@shared/entity/provider/kubevirt';
 import {NodeProvider} from '@shared/model/NodeProviderConstants';
 import {EMPTY, Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {Provider} from './provider';
 
 export class KubeVirt extends Provider {
@@ -47,6 +50,34 @@ export class KubeVirt extends Provider {
   credential(credential: string): KubeVirt {
     super._credential(credential);
     return this;
+  }
+
+  vpcs(onLoadingCb: () => void = null): Observable<KubeVirtVPC[]> {
+    if (!this._hasRequiredHeaders()) {
+      return EMPTY;
+    }
+
+    if (onLoadingCb) {
+      onLoadingCb();
+    }
+
+    const url = `${this._newRestRoot}/projects/${this._projectID}/providers/${this._provider}/vpcs`;
+    return this._http
+      .get<KubeVirtVPC[]>(url, {headers: this._headers})
+      .pipe(map(vpcs => vpcs.map(vpc => Object.assign(new KubeVirtVPC(), vpc))));
+  }
+
+  subnets(onLoadingCb: () => void = null): Observable<string[]> {
+    if (!this._hasRequiredHeaders()) {
+      return EMPTY;
+    }
+
+    if (onLoadingCb) {
+      onLoadingCb();
+    }
+
+    const url = `${this._newRestRoot}/projects/${this._projectID}/providers/${this._provider}/subnets`;
+    return this._http.get<KubeVirtSubnets>(url, {headers: this._headers}).pipe(map(subnets => subnets.subnets));
   }
 
   instanceTypes(onLoadingCb: () => void = null): Observable<KubeVirtInstanceTypeList> {

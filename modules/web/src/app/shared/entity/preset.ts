@@ -184,6 +184,8 @@ export class HetznerPresetSpec extends PresetProviderSpec {
 
 export class KubevirtPresetSpec extends PresetProviderSpec {
   kubeconfig: string;
+  vpcID: string;
+  subnet: string;
 }
 
 export class NutanixPresetSpec extends PresetProviderSpec {

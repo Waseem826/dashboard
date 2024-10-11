@@ -28,4 +28,24 @@ limitations under the License.
       <strong>Required</strong>
     </mat-error>
   </mat-form-field>
+
+  <mat-form-field fxFlex>
+    <mat-label>Subnet</mat-label>
+    <input matInput
+           [formControlName]="Control.Subnet"
+           [name]="Control.Subnet"
+           type="text"
+           autocomplete="off"
+           kmValueChangedIndicator>
+  </mat-form-field>
+
+  <mat-form-field fxFlex>
+    <mat-label>VPC ID</mat-label>
+    <input matInput
+           [formControlName]="Control.VpcID"
+           [name]="Control.VpcID"
+           type="text"
+           autocomplete="off"
+           kmValueChangedIndicator>
+  </mat-form-field>
 </form>
