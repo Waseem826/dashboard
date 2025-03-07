@@ -489,6 +489,7 @@ func createAuthClients(options serverRunOptions, prov providers) (authtypes.Toke
 			auth.NewHeaderBearerTokenExtractor("Authorization"),
 			auth.NewCookieHeaderBearerTokenExtractor("token"),
 			auth.NewQueryParamBearerTokenExtractor("token"),
+			auth.NewCookieHeaderBearerCompressedTokenExtractor("compressed-token"),
 		),
 		options.caBundle.CertPool(),
 	)

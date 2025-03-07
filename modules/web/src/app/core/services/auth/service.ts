@@ -15,15 +15,16 @@
 import {Inject, Injectable} from '@angular/core';
 import {Cookie, COOKIE_DI_TOKEN} from '@app/config';
 import {AppConfigService} from '@app/config.service';
+import {OIDCProviders} from '@app/shared/model/Config';
 import {environment} from '@environments/environment';
 import {RandomString} from '@shared/functions/generate-random-string';
+import {gzipCompress, gzipDecompress} from '@shared/utils/common';
 import {CookieService} from 'ngx-cookie-service';
 import {Observable} from 'rxjs';
 import {take, tap} from 'rxjs/operators';
 import {PreviousRouteService} from '../previous-route';
 import {TokenService} from '../token';
 import {UserService} from '../user';
-import {OIDCProviders} from '@app/shared/model/Config';
 
 @Injectable()
 export class Auth {
@@ -33,6 +34,7 @@ export class Auth {
   private readonly _clientId = 'kubermatic';
   private readonly _defaultScope = 'openid email profile groups';
   private readonly _redirectUri = window.location.protocol + '//' + window.location.host + '/projects';
+  private readonly _maximumUncompressedTokenLength = 4096;
 
   constructor(
     private readonly _cookieService: CookieService,
@@ -41,24 +43,45 @@ export class Auth {
     private readonly _userService: UserService,
     private readonly _tokenService: TokenService,
     @Inject(COOKIE_DI_TOKEN) private readonly _cookie: Cookie
-  ) {
+  ) {}
+
+  async init(): Promise<void> {
     const token = this._getTokenFromQuery();
     const nonce = this.getNonce();
     if (!!token && !!nonce) {
       if (this.compareNonceWithToken(token, nonce)) {
         // remove URL fragment with token, so that users can't accidentally copy&paste it and send it to others
         this._removeFragment();
-        let secure = true;
-        if (location.protocol === 'http:') {
-          secure = false;
+        if (token.length > this._maximumUncompressedTokenLength) {
+          const compressedToken = await gzipCompress(token).then(value => {
+            const uint8Value = new Uint8Array(value);
+            const bufferSize = 0x8000;
+            const c = [];
+            for (let i = 0; i < uint8Value.length; i += bufferSize) {
+              c.push(String.fromCharCode.apply(null, uint8Value.subarray(i, i + bufferSize)));
+            }
+            return btoa(c.join(''));
+          });
+
+          this._setTokenCookie(this._cookie.compressedToken, compressedToken);
+        } else {
+          this._setTokenCookie(this._cookie.token, token);
         }
-        this._cookieService.set(this._cookie.token, token, 1, '/', null, secure, 'Lax');
-        // localhost is only served via http, though secure cookie is not possible
-        // following line will only work when domain is localhost
-        this._cookieService.set(this._cookie.token, token, 1, '/', 'localhost', false, 'Lax');
-        this._cookieService.set(this._cookie.token, token, 1, '/', '127.0.0.1', false, 'Lax');
+
+        this._tokenService.token = token;
       }
       this._previousRouteService.loadRouting();
+    } else {
+      const compressedToken = this._cookieService.get(this._cookie.compressedToken);
+      if (compressedToken) {
+        const stringValue = atob(compressedToken.trim());
+        const charArray = stringValue.split('').map(x => {
+          return x.charCodeAt(0);
+        });
+        this._tokenService.token = await gzipDecompress(new Uint8Array(charArray));
+      } else {
+        this._tokenService.token = this._cookieService.get(this._cookie.token);
+      }
     }
   }
 
@@ -81,7 +104,7 @@ export class Auth {
   }
 
   getBearerToken(): string {
-    return this._cookieService.get(this._cookie.token);
+    return this._cookieService.get(this._cookie.token) || this._tokenService.token;
   }
 
   getNonce(): string {
@@ -120,7 +143,9 @@ export class Auth {
       .logout()
       .pipe(
         tap(_ => {
+          this._tokenService.token = null;
           this._cookieService.delete(this._cookie.token, '/');
+          this._cookieService.delete(this._cookie.compressedToken, '/');
           this._cookieService.delete(this._cookie.nonce, '/');
         })
       )
@@ -173,5 +198,17 @@ export class Auth {
   private _removeFragment(): void {
     const currentHref = window.location.href;
     history.replaceState({}, '', currentHref.slice(0, currentHref.indexOf('#')));
+  }
+
+  private _setTokenCookie(cookieName: string, token: string) {
+    let secure = true;
+    if (location.protocol === 'http:') {
+      secure = false;
+    }
+    this._cookieService.set(cookieName, token, 1, '/', null, secure, 'Lax');
+    // localhost is only served via http, though secure cookie is not possible
+    // following line will only work when domain is localhost
+    this._cookieService.set(cookieName, token, 1, '/', 'localhost', false, 'Lax');
+    this._cookieService.set(cookieName, token, 1, '/', '127.0.0.1', false, 'Lax');
   }
 }

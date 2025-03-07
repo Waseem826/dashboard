@@ -17,11 +17,15 @@ limitations under the License.
 package auth
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -33,6 +37,7 @@ import (
 
 	apiv1 "k8c.io/dashboard/v2/pkg/api/v1"
 	authtypes "k8c.io/dashboard/v2/pkg/provider/auth/types"
+	"k8c.io/kubermatic/v2/pkg/log"
 )
 
 // OpenIDClient implements OIDCIssuerVerifier and TokenExtractorVerifier.
@@ -253,6 +258,57 @@ func (e cookieHeaderBearerTokenExtractor) Extract(r *http.Request) (string, erro
 	}
 
 	return cookie.Value, nil
+}
+
+func NewCookieHeaderBearerCompressedTokenExtractor(header string) authtypes.TokenExtractor {
+	return cookieHeaderBearerCompressedTokenExtractor{name: header}
+}
+
+type cookieHeaderBearerCompressedTokenExtractor struct {
+	name string
+}
+
+func (e cookieHeaderBearerCompressedTokenExtractor) Extract(r *http.Request) (string, error) {
+	cookie, err := r.Cookie(e.name)
+	if err != nil {
+		return "", fmt.Errorf("haven't found a Bearer token in the Compressed Cookie header %s: %w", e.name, err)
+	}
+
+	urlDecodedValue, err := url.QueryUnescape(cookie.Value)
+	if err != nil {
+		fmt.Println("Error decoding compressed token:", err)
+		return "", err
+	}
+
+	decoded, err := base64.StdEncoding.DecodeString(urlDecodedValue)
+	if err != nil {
+		fmt.Println("Error decoding base64:", err)
+		return "", err
+	}
+
+	decompressedToken, err := gzipDecompress(decoded)
+	if err != nil {
+		fmt.Println("Error decompressing token:", err)
+		return "", err
+	}
+
+	return decompressedToken, nil
+}
+
+func gzipDecompress(data []byte) (string, error) {
+	reader, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return "", err
+	}
+	defer reader.Close()
+
+	var decompressed bytes.Buffer
+	_, err = io.Copy(&decompressed, reader)
+	if err != nil {
+		return "", err
+	}
+
+	return decompressed.String(), nil
 }
 
 // NewCombinedExtractor returns an token extractor which tries a list of token extractors until it finds a token.

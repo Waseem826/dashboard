@@ -19,6 +19,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {CoreModule} from '@core/module';
+import {Auth} from '@core/services/auth/service';
 import {DatacenterService} from '@core/services/datacenter';
 import {HistoryService} from '@core/services/history';
 import {ProjectService} from '@core/services/project';
@@ -38,9 +39,11 @@ const appInitializerFn = (
   appConfigService: AppConfigService,
   historyService: HistoryService,
   userService: UserService,
-  datacenterService: DatacenterService
+  datacenterService: DatacenterService,
+  authService: Auth
 ): Function => {
-  return () => {
+  return async () => {
+    await authService.init();
     historyService.init();
     userService.init();
     datacenterService.init();
@@ -72,7 +75,7 @@ const appearance: MatFormFieldDefaultOptions = {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
-      deps: [AppConfigService, HistoryService, UserService, DatacenterService],
+      deps: [AppConfigService, HistoryService, UserService, DatacenterService, Auth],
     },
     {
       provide: MAT_TOOLTIP_DEFAULT_OPTIONS,

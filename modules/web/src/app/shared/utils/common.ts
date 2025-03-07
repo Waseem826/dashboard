@@ -103,3 +103,21 @@ export function getPercentage(total: number, used: number, maxUsage = maxUsageDe
 export function getEditionVersion(): string {
   return `v${version.semver?.major}.${version.semver?.minor}`;
 }
+
+export async function gzipCompress(str: string): Promise<ArrayBuffer> {
+  const byteArray = new TextEncoder().encode(str);
+  const cs = new CompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(byteArray);
+  writer.close();
+  return new Response(cs.readable).arrayBuffer();
+}
+
+export async function gzipDecompress(byteArray: Uint8Array): Promise<string> {
+  const cs = new DecompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(byteArray);
+  writer.close();
+  const arrayBuffer = await new Response(cs.readable).arrayBuffer();
+  return new TextDecoder().decode(arrayBuffer);
+}
